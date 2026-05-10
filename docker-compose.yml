@@ -1,0 +1,69 @@
+services:
+  python:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: python-app
+    container_name: python-container
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mongo
+      - redis
+      - elasticsearch
+    environment:
+      MONGO_URL: mongodb://root:test@mongo:27017/
+      REDIS_URL: redis://redis:6379
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+
+  mongo:
+    image: mongo:7
+    container_name: mongo-container
+    restart: always
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: test
+    volumes:
+      - mongo_data:/data/db
+
+  mongo-express:
+    image: mongo-express:latest
+    container_name: mongo-express-container
+    restart: always
+    depends_on:
+      - mongo
+    ports:
+      - "8082:8081"
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: test
+      ME_CONFIG_MONGODB_URL: mongodb://root:test@mongo:27017/
+      ME_CONFIG_BASICAUTH_ENABLED: "true"
+      ME_CONFIG_BASICAUTH_USERNAME: test
+      ME_CONFIG_BASICAUTH_PASSWORD: test
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis-container
+    restart: always
+    ports:
+      - "6380:6379"
+
+  elasticsearch:
+    image: elasticsearch:8.19.3
+    container_name: elasticsearch-container
+    restart: always
+    environment:
+      discovery.type: single-node
+      xpack.security.enabled: "false"
+      ES_JAVA_OPTS: "-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+
+volumes:
+  mongo_data:
+  elasticsearch_data:
