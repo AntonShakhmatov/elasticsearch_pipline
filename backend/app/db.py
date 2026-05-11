@@ -7,3 +7,4 @@ client = AsyncIOMotorClient(MONGO_URL)
 
 db = client.osint_platform
 pages_collection = db.pages
+jobs_collection =  db.jobs

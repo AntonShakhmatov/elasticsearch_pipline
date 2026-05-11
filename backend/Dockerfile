@@ -8,4 +8,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-CMD ["python", "app/main.py"]
+CMD sh -c "python app/main.py & python app/worker.py"
